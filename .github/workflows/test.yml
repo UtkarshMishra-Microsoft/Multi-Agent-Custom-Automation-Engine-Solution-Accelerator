@@ -2,27 +2,19 @@ name: Test Workflow with Coverage
 
 on:
   push:
-    branches:
-      - main
-      - dev
-      - demo
-      - hotfix
+    branches: [main, dev, demo, hotfix]
   pull_request:
-    types:
-      - opened
-      - ready_for_review
-      - reopened
-      - synchronize
-    branches:
-      - main
-      - main
-      - dev
-      - demo
-      - hotfix
+    types: [opened, ready_for_review, reopened, synchronize]
+    branches: [main, dev, demo, hotfix]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env:
+      # ✅ Provide dummy defaults so env lookups don’t crash
+      AZURE_OPENAI_ENDPOINT: "https://dummy-openai-endpoint/"
+      AZURE_AI_SUBSCRIPTION_ID: "00000000-0000-0000-0000-000000000000"
 
     steps:
       - name: Checkout code
@@ -48,11 +40,12 @@ jobs:
             echo "Test files found, running tests."
             echo "skip_tests=false" >> $GITHUB_ENV
           fi
+
       - name: Run tests with coverage
         if: env.skip_tests == 'false'
         run: |
           pytest --cov=. --cov-report=term-missing --cov-report=xml
-          
+
       - name: Skip coverage report if no tests
         if: env.skip_tests == 'true'
         run: |
